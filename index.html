@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+<meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#05060a">
@@ -117,6 +118,18 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border:0;border-radiu
 #stats{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:12px;opacity:.75;font-variant-numeric:tabular-nums}
 @media (pointer:coarse){.seg button{min-height:38px}.chips button{padding:8px 12px}.sw button{width:32px;height:32px}.ib{width:40px;height:40px}}
 .ib{flex:none}
+.pals{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.pals button{display:flex;align-items:center;gap:7px;padding:4px 11px 4px 5px;min-height:32px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);opacity:.85;transition:all .15s}
+.pals button:hover{opacity:1;background:rgba(255,255,255,.1)}
+.pals button i{width:20px;height:20px;border-radius:50%;background:var(--g);box-shadow:0 0 10px var(--gl)}
+.pals button.on{background:rgba(170,200,255,.2);border-color:rgba(190,215,255,.35);opacity:1}
+.lbl{font-size:11px;opacity:.5;margin:0 0 6px}
+.tg{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;width:100%;text-align:left;padding:2px 0}
+.tg small{display:block;opacity:.55;font-size:11px;margin-top:2px}
+.tg .knob{flex:none;width:44px;height:26px;border-radius:999px;background:rgba(255,255,255,.14);position:relative;transition:background .2s}
+.tg .knob::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#e8eefc;box-shadow:0 1px 4px rgba(0,0,0,.4);transition:transform .2s}
+.tg[aria-checked=true] .knob{background:rgba(110,180,255,.6)}.tg[aria-checked=true] .knob::after{transform:translateX(18px)}
+.nopts #hud,.nopts #ms,.nopts #statsec,.nopts #intro li.pt{display:none}
 
 @media (max-width:400px){#xpb{width:44px}}
 @media (max-width:640px){
@@ -153,12 +166,14 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border:0;border-radiu
   <div class="row" id="edit"><button id="undo" title="Remove the last star or black hole">↶ Undo</button><button id="clear" title="Remove all stars and black holes">✕ Clear stars &amp; holes</button></div>
   <section><h3>Physics</h3><div id="sliders"></div></section>
   <section><h3>Stage</h3><div class="chips" id="stages"></div></section>
+  <section><h3>Color</h3><div class="lbl">Palettes: color by speed &amp; heat</div><div class="pals" id="pals"></div><div class="lbl">Solid</div><div class="sw" id="colors"></div></section>
+  <section><h3>Look</h3><div class="chips" id="looks"></div></section>
   <section><h3>Texture</h3><div class="chips" id="textures"></div></section>
-  <section><h3>Color</h3><div class="sw" id="colors"></div></section>
   <section><h3>Shapes</h3><div class="chips" id="shapes"></div></section>
   <section><h3>Astronomy</h3><div class="chips add" id="astro"></div></section>
   <section><h3>Sound &amp; view</h3><div id="quick"><button class="ib qt on" id="sfx" title="Sound effects (on)"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/><path id="sfxx" d="M3 3l18 18" opacity="0"/></svg><span>Effects</span></button><button class="ib qt" id="snd" title="Ambient bed (off)"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="sndw" d="M17 9c1.5 1.5 1.5 4.5 0 6M19.5 6.5c3 3 3 8 0 11" opacity=".35"/><path id="sndx" d="M3 3l18 18"/></svg><span>Ambient</span></button><button class="ib qt" id="fs" title="Full screen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>Fullscreen</span></button><button class="ib qt dim" id="undoT" title="Undo last star or black hole (Ctrl/Cmd+Z)" disabled><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span>Undo</span></button></div></section>
-  <section><h3>Progress</h3><div id="stats"></div></section>
+  <section><h3>Game</h3><button class="tg" id="pts" role="switch" aria-checked="true"><span>Points &amp; goals<small>Score, combos, stage goals and levels</small></span><span class="knob"></span></button></section>
+  <section id="statsec"><h3>Progress</h3><div id="stats"></div></section>
   <div class="row"><button id="reset">Reset</button><button id="rand">Randomize</button></div>
 </div>
 <div id="hint" class="glass">drag to pull · tap for a star · hold for a black hole</div>
@@ -168,7 +183,7 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border:0;border-radiu
 <div id="ms" class="glass"><h4 id="msh"></h4><p id="msp"></p></div>
 <div id="intro" class="gone"><div class="card glass"><h2>PARTY_CLES</h2><ul>
   <li><span>👆</span>Drag to pull particles</li><li><span>✦</span>Tap to drop a star (tap a star to fuse it)</li>
-  <li><span>◉</span>Hold for a black hole: it eats particles for points</li><li><span>⚙</span>Tap <b>Customize</b> for colors, textures &amp; physics</li><li><span>🏆</span>Clear goals, level up, unlock colors &amp; textures</li></ul>
+  <li><span>◉</span>Hold for a black hole: it eats particles</li><li><span>⚙</span>Tap <b>Customize</b> for colors, textures &amp; physics</li><li class="pt"><span>🏆</span>Clear goals, level up, unlock colors &amp; textures</li></ul>
   <button id="go">Play</button></div></div>
 <script>
 (() => {
@@ -207,7 +222,9 @@ const SLIDERS = [
   ['count', 'Particles', 200, MAXN, 100, v => v | 0]
 ];
 const S = { gravity: 1, reach: 240, damping: .015, cap: 12, orbit: .55, count: isTouch ? 1800 : 3500,
-  mode: 'pull', stage: 'galaxy', texture: 'mote', color: COLORS.silver, shape: 'spiral' };
+  mode: 'pull', stage: 'galaxy', texture: 'mote', color: COLORS.silver, palette: null, shape: 'spiral' };
+const LOOKS = { hyper: 'Hyperreal', lite: 'Lite (faster)' };
+let LOOK = 'hyper'; try { if (localStorage.getItem('partycles.look') === 'lite') LOOK = 'lite'; } catch (e) {}
 const DEF = Object.assign({}, S);
 
 // ---------- reward loop ----------
@@ -221,6 +238,8 @@ const G = window.G = (() => {
   const save = () => { try { const o = Object.assign({}, st); delete o.sfx; localStorage.setItem(KEY, JSON.stringify(o)); localStorage.setItem('partycles.sfx', st.sfx ? '1' : '0'); } catch (e) {} };
   const need = l => Math.round(80 * Math.pow(l, 1.45)); // xp from level l to l+1
   function lvlOf(xp) { let l = 1; while (xp >= need(l)) { xp -= need(l); l++; } return [l, xp, need(l)]; }
+  // points/goals/levels can be switched off for a pure toy; persisted on its own key
+  let ptsOn = true; try { ptsOn = localStorage.getItem('partycles.points') !== '0'; } catch (e) {}
   const g = { st, save, eat: 0, shake: 0, score: 0, combo: 1, comboT: 0, sparks: [], floats: [], pend: 0, modeT: 0 };
   // --- audio blips ---
   // calm audio engine: everything in D major pentatonic, soft bells/bowls/pads through a long lush reverb + limiter.
@@ -343,22 +362,22 @@ const G = window.G = (() => {
     let pk = 0; for (let ch = 0; ch < 2; ch++) for (const v of buf.getChannelData(ch)) { const a = v < 0 ? -v : v; if (a > pk) pk = a; } return { buf, peak: pk }; };
   const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
   g.burst = (x, y, col, n = 18, sp = 3) => { for (let k = 0; k < n; k++) { const a = Math.random() * TAU, v = sp * (.3 + Math.random()); g.sparks.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, l: 1, col }); } if (g.sparks.length > 400) g.sparks.splice(0, g.sparks.length - 400); };
-  g.float = (x, y, txt, col = [255, 220, 160]) => { g.floats.push({ x, y, txt, l: 1, col }); if (g.floats.length > 24) g.floats.shift(); };
+  g.float = (x, y, txt, col = [255, 220, 160]) => { if (!ptsOn) return; g.floats.push({ x, y, txt, l: 1, col }); if (g.floats.length > 24) g.floats.shift(); };
   // --- score / xp ---
   let lastLvl = lvlOf(st.xp)[0];
   g.level = () => lvlOf(st.xp)[0];
   g.addXP = n => { st.xp += Math.round(n); const l = lvlOf(st.xp)[0];
     if (l > lastLvl) { for (let k = lastLvl + 1; k <= l; k++) levelUp(k); lastLvl = l; } hud(); };
-  g.points = (n, x, y) => { const v = Math.round(n * g.combo); g.score += v; if (g.score > st.best) st.best = g.score; g.addXP(v * .06);
+  g.points = (n, x, y) => { if (!ptsOn) return 0; const v = Math.round(n * g.combo); g.score += v; if (g.score > st.best) st.best = g.score; g.addXP(v * .06);
     if (x !== undefined) g.float(x, y, '+' + v); bump(); return v; };
-  g.hit = () => { const k0 = Math.floor(g.combo * 2); g.combo = Math.min(9, g.combo + .25); const k1 = Math.floor(g.combo * 2); if (k1 > k0 && k1 > 2) setTimeout(() => g.sfx.combo(k1 - 2), 180); g.comboT = 2.2; if (g.combo > st.maxCombo) st.maxCombo = Math.floor(g.combo); };
+  g.hit = () => { if (!ptsOn) return; const k0 = Math.floor(g.combo * 2); g.combo = Math.min(9, g.combo + .25); const k1 = Math.floor(g.combo * 2); if (k1 > k0 && k1 > 2) setTimeout(() => g.sfx.combo(k1 - 2), 180); g.comboT = 2.2; if (g.combo > st.maxCombo) st.maxCombo = Math.floor(g.combo); };
   // --- unlocks ---
-  g.locked = id => { const L = UNLOCK[id]; if (L && g.level() < L) { toast('🔒 Unlocks at level ' + L); g.blip(196, .1, 'triangle', 0, .04); buzz(15); return true; } return false; };
-  g.syncLocks = () => { const l = g.level();
+  g.locked = id => { if (!ptsOn) return false; const L = UNLOCK[id]; if (L && g.level() < L) { toast('🔒 Unlocks at level ' + L); g.blip(196, .1, 'triangle', 0, .04); buzz(15); return true; } return false; };
+  g.syncLocks = () => { const l = ptsOn ? g.level() : 1e9;
     document.querySelectorAll('#textures button').forEach(b => b.classList.toggle('lock', (UNLOCK['t:' + b.dataset.k] || 0) > l));
     document.querySelectorAll('#colors button').forEach(b => b.classList.toggle('lock', (UNLOCK['c:' + b.dataset.k] || 0) > l));
     const mv = document.getElementById('mvx'); if (mv) mv.style.display = l >= UNLOCK['m:vortex'] ? '' : 'none'; stats(); };
-  function levelUp(l) {
+  function levelUp(l) { if (!ptsOn) return;
     const un = Object.entries(UNLOCK).filter(([, v]) => v === l).map(([k]) => k.slice(2));
     milestone('Level ' + l, un.length ? 'Unlocked: ' + un.map(cap).join(', ') : 'Keep going: more unlocks ahead');
     g.shake = 10; buzz([20, 40, 30]); g.chord();
@@ -367,7 +386,7 @@ const G = window.G = (() => {
   const cap = s => s[0].toUpperCase() + s.slice(1);
   // --- milestone banner ---
   const ms = document.getElementById('ms'); let msT = 0;
-  function milestone(h, p) { document.getElementById('msh').textContent = h; document.getElementById('msp').textContent = p; ms.classList.add('show'); clearTimeout(msT); msT = setTimeout(() => ms.classList.remove('show'), 2200); }
+  function milestone(h, p) { if (!ptsOn) return; document.getElementById('msh').textContent = h; document.getElementById('msp').textContent = p; ms.classList.add('show'); clearTimeout(msT); msT = setTimeout(() => ms.classList.remove('show'), 2200); }
   g.milestone = milestone;
   // --- goals ---
   const GOALS = [
@@ -382,7 +401,7 @@ const G = window.G = (() => {
   let goal = null, gN = 0, gP = 0, gTier = 0;
   g.newGoal = () => { let c; do c = GOALS[(Math.random() * GOALS.length) | 0]; while (goal && c.id === goal.id);
     gTier = Math.min(2, Math.floor(st.goals / 4)); goal = c; gN = c.n[gTier]; gP = c.id === 'score' ? g.score : 0; if (c.id === 'score') gN += g.score; goalUI(); };
-  g.prog = (id, v, abs) => { if (!goal || goal.id !== id) return; gP = abs ? Math.max(gP, v) : gP + v; goalUI();
+  g.prog = (id, v, abs) => { if (!ptsOn || !goal || goal.id !== id) return; gP = abs ? Math.max(gP, v) : gP + v; goalUI();
     if (gP >= gN) { st.goals++; const xp = goal.xp * (1 + gTier * .5); g.addXP(xp); milestone('Goal complete', '+' + Math.round(xp) + ' XP'); buzz([15, 30, 15]);
       [784, 988, 1175].forEach((f, i) => g.blip(f, .08, 'sine', i * .07)); g.burst(W / 2, 70, [255, 213, 154], 30, 4);
       const el = document.getElementById('goal'); el.classList.remove('done'); void el.offsetWidth; el.classList.add('done'); save(); setTimeout(g.newGoal, 900); goal = null; } };
@@ -444,7 +463,12 @@ const G = window.G = (() => {
   const sfxUI = () => { sb.classList.toggle('on', !!st.sfx); document.getElementById('sfxx').setAttribute('opacity', st.sfx ? '0' : '1'); sb.title = 'Sound effects (' + (st.sfx ? 'on' : 'off') + ')'; };
   sb.onclick = () => { st.sfx = st.sfx ? 0 : 1; save(); sfxUI(); unlock(); g.blip(660, .06); toast('Sound effects ' + (st.sfx ? 'on' : 'off')); };
   // --- daily streak ---
-  g.start = () => { sfxUI();
+  g.ptsOn = () => ptsOn;
+  g.setPts = v => { ptsOn = !!v; try { localStorage.setItem('partycles.points', ptsOn ? '1' : '0'); } catch (e) {}
+    document.documentElement.classList.toggle('nopts', !ptsOn);
+    if (!ptsOn) { g.floats.length = 0; g.combo = 1; g.comboT = 0; g.pend = 0; ms.classList.remove('show'); } else { lastLvl = lvlOf(st.xp)[0]; g.newGoal(); }
+    hud(); g.syncLocks(); };
+  g.start = () => { sfxUI(); document.documentElement.classList.toggle('nopts', !ptsOn);
     const d = new Date(), today = d.toDateString(), y = new Date(d - 864e5).toDateString();
     if (st.day !== today) { st.streak = st.day === y ? st.streak + 1 : 1; st.day = today; const bonus = Math.min(7, st.streak) * 20;
       save(); if (st.intro) setTimeout(() => { milestone('🔥 Day ' + st.streak + ' streak', '+' + bonus + ' XP daily bonus'); g.addXP(bonus); }, 900); else st.xp += bonus; }
@@ -471,6 +495,10 @@ const WHITE = [255, 255, 255];
 let W = 0, H = 0, DPR = 1, R0 = 300;
 const stageCv = document.createElement('canvas'); const sctx = stageCv.getContext('2d');
 let twinkles = [];
+// Hyperreal look: particles render into their own layer that fades (afterglow / motion blur) and feeds a cheap downsampled bloom
+let LD = 1; // afterglow layer resolution (capped below the screen's on high-DPR phones; it is glow, so it stays soft anyway)
+const pcv = document.createElement('canvas'), pctx = pcv.getContext('2d', { alpha: false }); // black, opaque: it is added with 'lighter'
+const b1 = document.createElement('canvas'), b1x = b1.getContext('2d'), b2 = document.createElement('canvas'), b2x = b2.getContext('2d');
 
 // ---------- particles ----------
 const px = new Float32Array(MAXN), py = new Float32Array(MAXN), vx = new Float32Array(MAXN), vy = new Float32Array(MAXN);
@@ -571,7 +599,8 @@ function steerTarget(x, y) {
 let spawnFn = null;
 function put(i, x, y, ux, uy, l) {
   px[i] = x; py[i] = y; vx[i] = ux; vy[i] = uy;
-  sz[i] = .45 + Math.pow(Math.random(), 2.2) * 1.5; op[i] = .35 + Math.random() * .65;
+  const z = Math.random(); // depth: near particles are bigger and brighter
+  sz[i] = .42 + Math.pow(z, 2.2) * 1.6; op[i] = .3 + .7 * Math.min(1, z * .75 + Math.random() * .4);
   trl[i] = .5 + Math.random(); sd[i] = rnd(TAU); jt[i] = Math.random(); glow[i] = 0;
   vr[i] = (Math.random() * 3) | 0; maxl[i] = life[i] = l; hk[i] = 0; cf[i] = 1;
 }
@@ -619,7 +648,7 @@ const SHAPE_SETUP = {
   dust() { return dustSpawn; },
   cluster() {
     const n = 4 + (Math.random() * 2 | 0), cs = [];
-    for (let k = 0; k < n; k++) { const s = mkStar(rnd(.18, .82) * W, rnd(.2, .8) * H, { m: .35, r: 4, color: mix(hexRgb(S.color), [255, 220, 180], .4) }); cs.push(s); bodies.push(s); }
+    for (let k = 0; k < n; k++) { const s = mkStar(rnd(.18, .82) * W, rnd(.2, .8) * H, { m: .35, r: 4, color: mix(accent(), [255, 220, 180], .4) }); cs.push(s); bodies.push(s); }
     return i => { const c = cs[(Math.random() * cs.length) | 0], r = Math.abs(gauss()) * R0 * .19 + 26, t = rnd(TAU);
       orbitPut(i, c.x + Math.cos(t) * r, c.y + Math.sin(t) * r, rnd(10, 28)); };
   },
@@ -718,16 +747,34 @@ function nebulaSprite(h0) {
 
 function flash(x, y, col) { fx.push({ x, y, t: T, col }); }
 
+// ---------- palettes ----------
+// blackbody colour for a temperature in kelvin (fit of the Planck locus, after Tanner Helland)
+function kelvin(k) { k /= 100; let r, g, b;
+  if (k <= 66) { r = 255; g = 99.47 * Math.log(k) - 161.12; b = k <= 19 ? 0 : 138.52 * Math.log(k - 10) - 305.04; }
+  else { r = 329.7 * Math.pow(k - 60, -.1332); g = 288.12 * Math.pow(k - 60, -.0755); b = 255; }
+  return [clamp(r, 0, 255) | 0, clamp(g, 0, 255) | 0, clamp(b, 0, 255) | 0]; }
+const ramp = stops => { const cs = stops.map(hexRgb); return t => { t = clamp(t, 0, 1) * (cs.length - 1); const i = Math.min(cs.length - 2, t | 0); return mix(cs[i], cs[i + 1], t - i); }; };
+// palettes colour each particle by how fast / hot it is: t = 0 slow & cool ... 1 fast & hot
+const PALETTES = {
+  blackbody: { name: 'Blackbody', ui: ['#ff3a00', '#ff9a3c', '#ffe6c8', '#fff8f4', '#b9d0ff'] },
+  nebula:    { name: 'Nebula',    ui: ['#6a1fa8', '#d64bd6', '#ff8fc4', '#8fe6ff', '#f2fbff'] },
+  aurora:    { name: 'Aurora',    ui: ['#0e8a55', '#2dff9c', '#6ff3ff', '#a98cff', '#ff8fd8'] },
+  biolume:   { name: 'Bioluminescent', ui: ['#0838a8', '#0f7dff', '#19e3ff', '#a0fff0', '#f0fffb'] }
+};
+for (const k in PALETTES) PALETTES[k].f = k === 'blackbody' ? t => kelvin(1600 + Math.pow(t, 1.3) * 12500) : ramp(PALETTES[k].ui);
+const palF = () => S.palette && PALETTES[S.palette] ? PALETTES[S.palette].f : null;
+function accent() { const f = palF(); return f ? f(.55) : hexRgb(S.color); }
+
 // ---------- sprites ----------
 let sprites = [], trailCols = [];
 function buildSprites() {
-  const base = hexRgb(S.color); const [h, s, l] = rgbHsl(base); const tex = S.texture;
+  const base = hexRgb(S.color); const [h, s, l] = rgbHsl(base); const tex = S.texture, pf = palF();
   sprites = []; trailCols = [];
   for (let v = 0; v < 3; v++) for (let k = 0; k < 8; k++) {
     const t = k / 7, hh = h + (v - 1) * .028 + t * .085;
     const ss = Math.min(1, s * (1 - t * .25) + t * (s < .15 ? .18 : .1));
     const ll = Math.min(.96, l * (.72 + .2 * t) + (.95 - l) * t * .75 + (v - 1) * .03);
-    const col = hslRgb(hh, ss, ll);
+    const col = pf ? pf(clamp(t * .85 + (v - 1) * .14 + .1, 0, 1)) : hslRgb(hh, ss, ll);
     trailCols.push(rgba(col, 1));
     const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const hot = mix(col, WHITE, .55);
     const rg = (stops) => { const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); for (const [o, cc, a] of stops) gr.addColorStop(o, rgba(cc, a)); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); };
@@ -748,8 +795,24 @@ function buildSprites() {
   }
 }
 
+// soft star with faint diffraction spikes, in a few colour temperatures (twinkles, star bodies)
+const spikeSpr = [4200, 6500, 11000].map(kv => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'), col = kelvin(kv);
+  let gr = g.createRadialGradient(32, 32, 0, 32, 32, 12); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.25, rgba(col, .7)); gr.addColorStop(1, rgba(col, 0)); g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  g.globalCompositeOperation = 'lighter';
+  for (const [dx, dy] of [[1, 0], [0, 1]]) { gr = dx ? g.createLinearGradient(0, 0, 64, 0) : g.createLinearGradient(0, 0, 0, 64);
+    gr.addColorStop(0, rgba(col, 0)); gr.addColorStop(.5, rgba(WHITE, .85)); gr.addColorStop(1, rgba(col, 0)); g.fillStyle = gr; dx ? g.fillRect(0, 31.2, 64, 1.6) : g.fillRect(31.2, 0, 1.6, 64); }
+  return c; });
+// slowly drifting nebula haze over space stages (Hyperreal look)
+let hazes = [];
+function buildHaze() {
+  hazes = []; if (!['void', 'galaxy', 'nebula'].includes(S.stage)) return;
+  const pf = palF(), base = S.stage === 'nebula' ? .8 : S.stage === 'void' ? .62 : .7, n = S.stage === 'void' ? 2 : 3;
+  for (let k = 0; k < n; k++) { const hh = pf ? rgbHsl(pf(.15 + k * .3))[0] : base + (k - 1) * .07;
+    hazes.push({ spr: nebulaSprite(hh), x: rnd(.15, .85), y: rnd(.15, .85), s: rnd(.8, 1.3), rot: rnd(TAU), w: rnd(.02, .05) * (k % 2 ? 1 : -1), a: S.stage === 'void' ? .22 : .32, ph: rnd(TAU) }); }
+}
+
 // ---------- stages ----------
-function renderStage() {
+function renderStage() { buildHaze();
   const w = stageCv.width = Math.max(1, W * DPR | 0), h = stageCv.height = Math.max(1, H * DPR | 0), g = sctx, D = DPR;
   const r = mulberry(STAGES.indexOf(S.stage) * 7919 + 17), M = Math.max(w, h);
   g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
@@ -757,7 +820,7 @@ function renderStage() {
   const blob = (x, y, rad, col, a) => { const gr = g.createRadialGradient(x, y, 0, x, y, rad); gr.addColorStop(0, rgba(col, a)); gr.addColorStop(1, rgba(col, 0)); g.fillStyle = gr; g.fillRect(x - rad, y - rad, rad * 2, rad * 2); };
   const stars = (n, amax, smax = 1.2) => { for (let i = 0; i < n; i++) { g.fillStyle = `rgba(230,236,255,${(.04 + Math.pow(r(), 3) * amax).toFixed(3)})`; const s = (.3 + r() * smax) * D; g.fillRect(r() * w, r() * h, s, s); } };
   twinkles = [];
-  const tw = (n) => { for (let i = 0; i < n; i++) twinkles.push({ x: r(), y: r(), p: r() * TAU, s: .4 + r() * .9, f: .5 + r() * 1.6 }); };
+  const tw = (n) => { for (let i = 0; i < n; i++) twinkles.push({ x: r(), y: r(), p: r() * TAU, s: .4 + r() * .9, f: .5 + r() * 1.6, c: r() < .25 ? 0 : r() < .7 ? 1 : 2 }); };
   switch (S.stage) {
     case 'void': g.fillStyle = '#020203'; g.fillRect(0, 0, w, h); blob(w / 2, h / 2, M * .7, [20, 22, 34], .5); stars(140, .25, .8); tw(40); break;
     case 'galaxy': {
@@ -817,6 +880,7 @@ function resize() {
   DPR = Math.min(2, window.devicePixelRatio || 1);
   W = window.innerWidth; H = window.innerHeight; R0 = Math.min(W, H) * .44;
   cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  LD = Math.min(DPR, 1.5); pcv.width = Math.round(W * LD); pcv.height = Math.round(H * LD); b1.width = Math.ceil(cv.width / 4); b1.height = Math.ceil(cv.height / 4); b2.width = Math.ceil(cv.width / 8); b2.height = Math.ceil(cv.height / 8);
   renderStage();
   if (oW) {
     const dx = (W - oW) / 2, dy = (H - oH) / 2;
@@ -838,11 +902,19 @@ const cap1 = s => s[0].toUpperCase() + s.slice(1);
 chips($('stages'), STAGES.map(s => [s, cap1(s)]), k => { S.stage = k; renderStage(); syncUI(); G.newGoal(); });
 chips($('textures'), Object.keys(TEXTURES).map(s => [s, cap1(s)]), k => { if (G.locked('t:' + k)) return; S.texture = k; buildSprites(); syncUI(); G.used('tex'); });
 chips($('shapes'), Object.entries(SHAPES), k => setShape(k));
+(() => { const el = $('pals'); for (const [k, p] of Object.entries(PALETTES)) { const b = document.createElement('button'); b.dataset.k = k; b.title = p.name;
+    b.innerHTML = `<i style="--g:linear-gradient(135deg,${p.ui.join(',')});--gl:${p.ui[1]}"></i>${p.name}`;
+    b.onclick = () => { S.palette = k; buildSprites(); buildHaze(); syncUI(); G.used('pal'); }; el.appendChild(b); } })();
+chips($('looks'), Object.entries(LOOKS), k => { setLook(k, true); toast(k === 'hyper' ? 'Hyperreal: glow, afterglow trails, haze' : 'Lite: lighter on the battery'); });
+function setLook(k, user) { LOOK = k; if (user) { try { localStorage.setItem('partycles.look', k); } catch (e) {} lookUser = performance.now(); } pctx.clearRect(0, 0, pcv.width, pcv.height); syncUI(); }
+let lookUser = 0;
+$('pts').onclick = () => { G.setPts(!G.ptsOn()); ptsUI(); toast(G.ptsOn() ? 'Points & goals on' : 'Points & goals off: just play'); };
+function ptsUI() { $('pts').setAttribute('aria-checked', G.ptsOn() ? 'true' : 'false'); }
 chips($('astro'), Object.keys(ASTRO).map(k => [k, '+ ' + k]), k => { ASTRO[k](); trimBodies(); });
 (() => { const el = $('colors'); for (const [k, c] of Object.entries(Object.assign({}, COLORS, XCOLORS))) { const b = document.createElement('button'); b.title = k; b.dataset.c = c; b.dataset.k = k; b.style.setProperty('--c', c);
-    b.onclick = () => { if (G.locked('c:' + k)) return; S.color = c; $('picker').value = c; buildSprites(); syncUI(); G.used('col'); }; el.appendChild(b); }
+    b.onclick = () => { if (G.locked('c:' + k)) return; S.palette = null; S.color = c; $('picker').value = c; buildSprites(); syncUI(); G.used('col'); }; el.appendChild(b); }
   const lab = document.createElement('label'); lab.innerHTML = '<input type="color" id="picker" value="#cfd8e6">custom'; el.appendChild(lab);
-  $('picker').addEventListener('input', e => { S.color = e.target.value; buildSprites(); syncUI(); }); })();
+  $('picker').addEventListener('input', e => { S.palette = null; S.color = e.target.value; buildSprites(); syncUI(); }); })();
 (() => { const el = $('sliders'); for (const [k, label, mn, mx, st, fmt] of SLIDERS) { const d = document.createElement('div'); d.className = 'sl';
     d.innerHTML = `<span>${label}</span><input type="range" min="${mn}" max="${mx}" step="${st}" data-k="${k}"><output></output>`; el.appendChild(d);
     const inp = d.querySelector('input'), out = d.querySelector('output');
@@ -853,7 +925,10 @@ function syncUI() {
   document.querySelectorAll('#stages button').forEach(b => b.classList.toggle('on', b.dataset.k === S.stage));
   document.querySelectorAll('#textures button').forEach(b => b.classList.toggle('on', b.dataset.k === S.texture));
   document.querySelectorAll('#shapes button').forEach(b => b.classList.toggle('on', b.dataset.k === S.shape));
-  document.querySelectorAll('#colors button').forEach(b => b.classList.toggle('on', b.dataset.c.toLowerCase() === S.color.toLowerCase()));
+  document.querySelectorAll('#colors button').forEach(b => b.classList.toggle('on', !S.palette && b.dataset.c.toLowerCase() === S.color.toLowerCase()));
+  document.querySelectorAll('#pals button').forEach(b => b.classList.toggle('on', b.dataset.k === S.palette));
+  document.querySelectorAll('#looks button').forEach(b => b.classList.toggle('on', b.dataset.k === LOOK));
+  ptsUI();
   for (const [k, , , , , fmt] of SLIDERS) { const inp = document.querySelector(`#sliders input[data-k="${k}"]`); inp.value = S[k]; inp.nextElementSibling.textContent = fmt(S[k]); }
   if (window.G) G.syncLocks();
   const pk = $('picker'); if (pk && /^#[0-9a-f]{6}$/i.test(S.color)) pk.value = S.color;
@@ -877,7 +952,7 @@ const fsOK = document.fullscreenEnabled || document.webkitFullscreenEnabled;
 if (!fsOK) $('fs').style.display = 'none';
 $('fs').onclick = () => { const d = document, e = d.documentElement;
   if (d.fullscreenElement || d.webkitFullscreenElement) (d.exitFullscreen || d.webkitExitFullscreen).call(d); else (e.requestFullscreen || e.webkitRequestFullscreen).call(e); };
-let autoLowered = false;
+let autoLowered = false, autoLite = false;
 $('reset').onclick = () => { const keep = autoLowered ? Math.min(S.count, DEF.count) : DEF.count; Object.assign(S, DEF); S.count = keep; active = Math.min(active, keep); setCount(keep);
   renderStage(); buildSprites(); setShape('spiral'); toast('Reset'); };
 $('rand').onclick = randomize;
@@ -886,6 +961,7 @@ function pick(a) { return a[(Math.random() * a.length) | 0]; }
 function randomize() {
   S.stage = pick(['galaxy', 'galaxy', 'nebula', 'nebula', 'void', 'sea', 'dune', 'moon']);
   S.texture = pick(['mote', 'mote', 'flare', 'wisp', 'bead', 'grit']);
+  S.palette = Math.random() < .5 ? pick(Object.keys(PALETTES)) : null;
   S.color = Math.random() < .65 ? pick(Object.values(COLORS)) : '#' + hslRgb(Math.random(), rnd(.45, .85), rnd(.6, .75)).map(v => v.toString(16).padStart(2, '0')).join('');
   S.gravity = +rnd(.7, 1.6).toFixed(2); S.reach = Math.round(rnd(160, 380) / 10) * 10; S.damping = +rnd(.005, .03).toFixed(3);
   S.cap = Math.round(rnd(8, 18) * 2) / 2; S.orbit = +rnd(.35, .9).toFixed(2);
@@ -916,7 +992,7 @@ function clearBodies() { const rm = bodies.filter(b => b.tap || b.type === 'hole
 function addStar(x, y) {
   if (G.fuse(x, y)) return;
   const n = bodies.filter(b => b.type === 'star' && b.tap); if (n.length >= 12) bodies.splice(bodies.indexOf(n[0]), 1);
-  const col = mix(hexRgb(S.color), [255, 230, 190], .25); const s = mkStar(x, y, { m: .9, r: rnd(6, 8), color: col, tap: true, added: true }); bodies.push(s); flash(x, y, col); s.pts = G.onStar(x, y, col); placed.push(s); undoUI();
+  const col = mix(accent(), [255, 230, 190], .25); const s = mkStar(x, y, { m: .9, r: rnd(6, 8), color: col, tap: true, added: true }); bodies.push(s); flash(x, y, col); s.pts = G.onStar(x, y, col); placed.push(s); undoUI();
 }
 function addHole(x, y) {
   const n = bodies.filter(b => b.type === 'hole'); if (n.length >= 5) bodies.splice(bodies.indexOf(n[0]), 1);
@@ -1025,19 +1101,35 @@ function drawStar(b) {
   g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r * 2.6 * pulse); g.addColorStop(0, rgba(c, .35)); g.addColorStop(1, rgba(c, 0));
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * 2.6, 0, TAU); ctx.fill();
   ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * .55 * t, 0, TAU); ctx.fill();
+  if (LOOK === 'hyper') { const s = b.r * 9 * t * pulse; ctx.globalAlpha = .55; ctx.drawImage(spikeSpr[1], b.x - s / 2, b.y - s / 2, s, s); ctx.globalAlpha = 1; }
 }
+function diskArc(r0, r1, a0, a1) { ctx.beginPath(); ctx.arc(0, 0, r1, a0, a1); ctx.arc(0, 0, r0, a1, a0, true); ctx.closePath(); ctx.fill(); }
+// gravitational lensing: the hole bends light away, so the sky behind it darkens (drawn under the particles)
+function drawHoleShadow(b) { const r = b.r * Math.min(1, (T - b.born) * 2.5) + .01;
+  const g = ctx.createRadialGradient(b.x, b.y, r * .8, b.x, b.y, r * 4.6); g.addColorStop(0, 'rgba(0,0,0,.85)'); g.addColorStop(.3, 'rgba(0,0,0,.4)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(b.x, b.y, r * 4.6, 0, TAU); ctx.fill(); }
 function drawHole(b) {
   const r = b.r * Math.min(1, (T - b.born) * 2.5) + .01;
+  if (b.tilt === undefined) { b.tilt = rnd(-.45, .45); b.spinPh = rnd(TAU); }
+  const R0d = r * 1.55, R1d = r * 4, fl = .88 + .12 * Math.sin(T * 3.1 + b.spinPh), FL = .17;
+  const dg = ctx.createRadialGradient(0, 0, R0d, 0, 0, R1d);
+  dg.addColorStop(0, `rgba(255,248,236,${(.9 * fl).toFixed(3)})`); dg.addColorStop(.1, `rgba(255,205,140,${(.65 * fl).toFixed(3)})`); dg.addColorStop(.3, 'rgba(240,110,45,.16)'); dg.addColorStop(.7, 'rgba(160,40,16,.04)'); dg.addColorStop(1, 'rgba(140,30,12,0)');
+  // one half of the tilted disk; the side spinning toward us gets an extra pass (doppler beaming)
+  const half = (a0, a1) => { ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.tilt); ctx.scale(1, FL); ctx.fillStyle = dg; diskArc(R0d, R1d, a0, a1);
+    ctx.beginPath(); ctx.rect(-R1d, -R1d, R1d, R1d * 2); ctx.clip(); ctx.globalAlpha = .6; diskArc(R0d, R1d, a0, a1); ctx.restore(); };
   ctx.globalCompositeOperation = 'lighter';
-  let g = ctx.createRadialGradient(b.x, b.y, r, b.x, b.y, r * 3.4); g.addColorStop(0, 'rgba(150,130,220,.16)'); g.addColorStop(1, 'rgba(150,130,220,0)');
-  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(b.x, b.y, r * 3.4, 0, TAU); ctx.fill();
-  ctx.globalCompositeOperation = 'source-over';
-  g = ctx.createRadialGradient(b.x, b.y, r * .9, b.x, b.y, r * 1.5); g.addColorStop(0, 'rgba(0,0,0,.7)'); g.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(b.x, b.y, r * 1.5, 0, TAU); ctx.fill();
-  ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(b.x, b.y, r, 0, TAU); ctx.fill();
-  ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(205,195,255,.28)'; ctx.beginPath(); ctx.arc(b.x, b.y, r * 1.45, 0, TAU); ctx.stroke();
-  ctx.strokeStyle = 'rgba(205,195,255,.13)'; ctx.beginPath(); ctx.arc(b.x, b.y, r * 1.95, 0, TAU); ctx.stroke();
+  half(Math.PI, TAU); // far half, behind the hole
+  // event horizon
+  ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(b.x, b.y, r, 0, TAU); ctx.fill();
   ctx.globalCompositeOperation = 'lighter';
+  // light from the far side of the disk, bent up and over the hole
+  ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.tilt);
+  ctx.strokeStyle = `rgba(255,170,100,${(.14 * fl).toFixed(3)})`; ctx.lineWidth = r * .5; ctx.beginPath(); ctx.ellipse(0, 0, r * 1.45, r * 1.3, 0, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
+  ctx.strokeStyle = `rgba(255,232,200,${(.45 * fl).toFixed(3)})`; ctx.lineWidth = Math.max(1, r * .1); ctx.beginPath(); ctx.ellipse(0, 0, r * 1.36, r * 1.22, 0, Math.PI * 1.08, Math.PI * 1.92); ctx.stroke();
+  ctx.restore();
+  half(0, Math.PI); // near half, in front of the hole
+  // photon ring
+  ctx.lineWidth = 1.2; ctx.strokeStyle = 'rgba(255,226,190,.55)'; ctx.beginPath(); ctx.arc(b.x, b.y, r * 1.06, 0, TAU); ctx.stroke();
 }
 function lightFrom(b) { const s = nearestStar(b.x, b.y) || bodies.find(o => o.type === 'star'); if (!s || s === b) return [-.6, -.6]; const dx = s.x - b.x, dy = s.y - b.y, d = Math.hypot(dx, dy) || 1; return [dx / d, dy / d]; }
 function drawPlanet(b) {
@@ -1081,10 +1173,34 @@ function render() {
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   ctx.drawImage(stageCv, 0, 0, W, H);
   ctx.globalCompositeOperation = 'lighter';
-  for (const t of twinkles) { const a = .25 + .25 * Math.sin(T * t.f + t.p); if (a < .05) continue; ctx.fillStyle = `rgba(230,238,255,${a.toFixed(3)})`; ctx.fillRect(t.x * W, t.y * H, t.s * 1.5, t.s * 1.5); }
+  const HQ = LOOK === 'hyper';
+  // twinkling stars: scintillation is spiky (mostly dim, brief bright flashes), with colour temperature variety
+  for (const t of twinkles) { const w = .5 + .5 * Math.sin(T * t.f + t.p), a = .12 + .5 * w * w * w; const sz = t.s * (4 + 7 * w * w);
+    ctx.globalAlpha = a; ctx.drawImage(spikeSpr[t.c], t.x * W - sz / 2, t.y * H - sz / 2, sz, sz); }
+  ctx.globalAlpha = 1;
   for (const b of NEBULAE) drawNebula(b);
   for (const b of PULSARS) drawPulsar(b);
+  ctx.globalCompositeOperation = 'source-over'; for (const b of bodies) if (b.type === 'hole') drawHoleShadow(b); ctx.globalCompositeOperation = 'lighter';
   const tex = TEXTURES[S.texture], n = active;
+  // particles go to the afterglow layer in Hyperreal, straight onto the screen in Lite
+  let ctx_ = ctx;
+  if (HQ) { ctx_ = pctx; pctx.setTransform(1, 0, 0, 1, 0, 0); pctx.globalAlpha = 1; pctx.globalCompositeOperation = 'source-over';
+    pctx.fillStyle = `rgba(0,0,0,${(1 - Math.pow(.5, frameDt)).toFixed(3)})`; pctx.fillRect(0, 0, pcv.width, pcv.height);
+    pctx.setTransform(LD, 0, 0, LD, 0, 0); pctx.globalCompositeOperation = 'lighter'; }
+  drawParticles(ctx_, tex, n);
+  if (HQ) { ctx.globalAlpha = 1; ctx.drawImage(pcv, 0, 0, W, H);
+    // bloom at 1/4 and 1/8 resolution, folded into one quarter-res buffer that also carries the drifting haze, then one upscaled draw
+    const bw = b1.width, bh = b1.height, q = bw / W;
+    b1x.setTransform(1, 0, 0, 1, 0, 0); b1x.globalCompositeOperation = 'copy'; b1x.globalAlpha = .6; b1x.drawImage(pcv, 0, 0, bw, bh);
+    b2x.globalCompositeOperation = 'copy'; b2x.drawImage(b1, 0, 0, b2.width, b2.height);
+    b1x.globalCompositeOperation = 'lighter'; b1x.globalAlpha = 1; b1x.drawImage(b2, 0, 0, bw, bh);
+    for (const h of hazes) { const s = Math.max(W, H) * h.s * q, x = (h.x * W + Math.sin(T * h.w * 3 + h.ph) * W * .04) * q, y = (h.y * H + Math.cos(T * h.w * 2 + h.ph) * H * .04) * q;
+      b1x.setTransform(1, 0, 0, 1, x, y); b1x.rotate(h.rot + T * h.w); b1x.globalAlpha = h.a * (.85 + .15 * Math.sin(T * .3 + h.ph)); b1x.drawImage(h.spr, -s / 2, -s / 2, s, s); }
+    b1x.setTransform(1, 0, 0, 1, 0, 0); b1x.globalAlpha = 1;
+    ctx.drawImage(b1, 0, 0, W, H); }
+  renderRest();
+}
+function drawParticles(ctx, tex, n) {
   // trails batched by color bucket
   const paths = []; for (let k = 0; k < 24; k++) paths.push(new Path2D());
   const tk = tex.tK;
@@ -1101,6 +1217,8 @@ function render() {
     ctx.globalAlpha = a > 1 ? 1 : a; ctx.drawImage(sprites[bk[i]], px[i] - s * .5, py[i] - s * .5, s, s);
   }
   ctx.globalAlpha = 1;
+}
+function renderRest() {
   // bodies
   for (const b of bodies) {
     if (b.type === 'star') drawStar(b); else if (b.type === 'hole') drawHole(b); else if (b.type === 'planet' || b.type === 'moon') drawPlanet(b); else if (b.type === 'comet') drawComet(b);
@@ -1127,7 +1245,7 @@ let last = performance.now(), fpsT = 0, fpsN = 0, started = last;
 function frame(now) {
   const el = now - last; last = now;
   const dt = Math.min(2.2, Math.max(.25, el / 16.667));
-  T += dt / 60;
+  T += dt / 60; frameDt = dt;
   for (const p of pointers.values()) {
     if (now - p.lastMove > 40) { p.vx *= .82; p.vy *= .82; p.acc *= .8; }
     if (p.down && !p.moved && !p.holeMade && now - p.t0 > 450) { p.holeMade = true; addHole(p.x, p.y); }
@@ -1137,14 +1255,15 @@ function frame(now) {
   // adaptive quality
   if (el < 250) { fpsT += el; fpsN++; } else { fpsT = 0; fpsN = 0; }
   if (fpsT > 1000) { const fps = fpsN * 1000 / fpsT; fpsT = 0; fpsN = 0;
-    if (!PREVIEW && fps < 50 && now - started > 2500 && now - userCount > 3000 && active > 300) { setCount(Math.max(300, active * .82)); autoLowered = true; syncUI(); toast(`Keeping it smooth: ${active} particles`); } }
+    if (!PREVIEW && fps < 45 && LOOK === 'hyper' && now - started > 2500 && now - lookUser > 6000 && !autoLite) { autoLite = true; setLook('lite'); toast('Keeping it smooth: Lite look'); }
+    else if (!PREVIEW && fps < 50 && now - started > 2500 && now - userCount > 3000 && active > 300) { setCount(Math.max(300, active * .82)); autoLowered = true; syncUI(); toast(`Keeping it smooth: ${active} particles`); } }
   requestAnimationFrame(frame);
 }
 
 resize(); G.start(); buildSprites(); active = S.count; setShape('spiral'); syncUI();
 updBodies(0); buildAttractors(); render(); // paint the first frame immediately, before the first rAF
 requestAnimationFrame(t => { last = t; started = t; requestAnimationFrame(frame); });
-window.__partycles = { G, S, get active() { return active; }, get bodies() { return bodies; } };
+window.__partycles = { G, S, setLook, get look() { return LOOK; }, get active() { return active; }, get bodies() { return bodies; } };
 })();
 </script>
 </body>

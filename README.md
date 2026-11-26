@@ -7,6 +7,9 @@ Party_Cles is a gravity particle toy that runs in the browser. It's one self-con
 - **Drag** to pull. Switch between **Pull / Push / Spin** at the top.
 - **Tap** to drop a star. **Hold** to make a black hole that swallows particles.
 - The **sliders** button opens the panel: stage, texture, color, physics, shapes, and astronomy (planet with moons, binary stars, pulsar, nebula), plus Reset and Randomize.
+- **Color** has four palettes that color each particle by its speed and heat: **Blackbody**, **Nebula**, **Aurora** and **Bioluminescent**, plus solid colors.
+- **Look:** *Hyperreal* (default) adds glow/bloom, afterglow motion trails, drifting nebula haze, twinkling stars and lit accretion disks around black holes. *Lite* is lighter on slower phones; the game switches to it by itself if the frame rate drops.
+- **Game → Points & goals** turns the score, combos, goals and levels on or off (on by default). With it off, everything is unlocked and nothing pops up: it's just a toy.
 - The **share** button sends the link to friends, or copies it if your browser can't share.
 - An optional ambient drone is off by default (speaker button).
 
